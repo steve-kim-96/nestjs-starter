@@ -14,9 +14,9 @@ export class PostsService {
     return 'This action adds a new post';
   }
 
-  async findAll(): Promise<Array<Post>> {
+  async findAll(): Promise<Post[]> {
     try {
-      const posts = await this.findAll();
+      const posts = await this.postsRepository.find();
       return posts;
     } catch (error) {
       console.error("Woops");
