@@ -48,7 +48,9 @@ export class PostsService {
         post.Content = updatePostDto.Content;
       }
       return this.postsRepository.save(post);
-    } catch (error) {}
+    } catch (error) {
+      console.error("Woops! Couldn't update the post...")
+    }
   }
 
   remove(id: string): Promise<DeleteResult> {
