@@ -34,12 +34,21 @@ export class PostsService {
       const post = await this.postsRepository.findOne(id);
       return post;
     } catch (error) {
-      console.error("Woops. Couldn't find post with that id...")
+      console.error("Woops. Couldn't find post with that id...");
     }
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: string, updatePostDto: UpdatePostDto): Promise<Post> {
+    try {
+      const post = await this.postsRepository.findOne(id);
+      if (updatePostDto.Title) {
+        post.Title = updatePostDto.Title;
+      }
+      if (updatePostDto.Content) {
+        post.Content = updatePostDto.Content;
+      }
+      return this.postsRepository.save(post);
+    } catch (error) {}
   }
 
   remove(id: number) {
