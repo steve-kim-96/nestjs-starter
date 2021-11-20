@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
@@ -51,7 +51,7 @@ export class PostsService {
     } catch (error) {}
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  remove(id: string): Promise<DeleteResult> {
+    return this.postsRepository.delete(id);
   }
 }
