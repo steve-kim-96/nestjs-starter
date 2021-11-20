@@ -7,11 +7,17 @@ import { Post } from './entities/post.entity';
 
 @Injectable()
 export class PostsService {
+  constructor(
+    @InjectRepository(Post) private postsRepository: Repository<Post>,
+  ) {}
 
-  constructor(@InjectRepository(Post) private postsRepository: Repository<Post>) {}
-
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+  async create(createPostDto: CreatePostDto): Promise<Post> {
+    try {
+      const newPost = await this.postsRepository.create(createPostDto);
+      return this.postsRepository.save(newPost);
+    } catch (error) {
+      console.error("Woops. Couldn't create a post");
+    }
   }
 
   async findAll(): Promise<Post[]> {
@@ -19,12 +25,17 @@ export class PostsService {
       const posts = await this.postsRepository.find();
       return posts;
     } catch (error) {
-      console.error("Woops");
+      console.error('Woops');
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: string): Promise<Post> {
+    try {
+      const post = await this.postsRepository.findOne(id);
+      return post;
+    } catch (error) {
+      console.error("Woops. Couldn't find post with that id...")
+    }
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {
