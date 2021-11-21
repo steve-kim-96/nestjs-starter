@@ -53,7 +53,12 @@ export class PostsService {
     }
   }
 
-  remove(id: string): Promise<DeleteResult> {
-    return this.postsRepository.delete(id);
+  async remove(id: string): Promise<DeleteResult> {
+    try {
+      return await this.postsRepository.delete(id);
+    } catch (error) {
+      console.error("Woopsie... Couldn't delete the post...")
+    }
+    
   }
 }
