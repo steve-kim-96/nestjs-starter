@@ -22,7 +22,7 @@ export class PostsService {
 
   async findAll(): Promise<Post[]> {
     try {
-      const posts = await this.postsRepository.find();
+      const posts = await this.postsRepository.find({ relations: ['user'] });
       return posts;
     } catch (error) {
       console.error('Woops');
@@ -49,7 +49,7 @@ export class PostsService {
       }
       return this.postsRepository.save(post);
     } catch (error) {
-      console.error("Woops! Couldn't update the post...")
+      console.error("Woops! Couldn't update the post...");
     }
   }
 
@@ -57,8 +57,7 @@ export class PostsService {
     try {
       return await this.postsRepository.delete(id);
     } catch (error) {
-      console.error("Woopsie... Couldn't delete the post...")
+      console.error("Woopsie... Couldn't delete the post...");
     }
-    
   }
 }
