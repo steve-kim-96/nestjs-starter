@@ -1,47 +1,76 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { from, switchMap, map, catchError, throwError, Observable } from 'rxjs';
+import { AuthService } from 'src/auth/auth.service';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { IUser } from './entities/user.interface';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private authService: AuthService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  create(user: CreateUserDto): Observable<IUser> {
     try {
-      const user = await this.userRepository.create(createUserDto);
-      return this.userRepository.save(user);
+      return this.authService.hashPassword(user.password).pipe(
+        switchMap((passwordHash) => {
+          const newUser = new User();
+          newUser.email = user.email;
+          newUser.firstName = user.firstName;
+          newUser.lastName = user.lastName;
+          newUser.username = user.username;
+          newUser.password = passwordHash;
+          return from(this.userRepository.save(newUser)).pipe(
+            map((user: User) => {
+              const { password, ...result } = user;
+              return result;
+            }),
+          );
+        }),
+      );
     } catch (error) {
-      console.error("Woops. Couldn't create user");
+      throw new Error(error);
     }
   }
 
-  async findAll(): Promise<User[]> {
+  findAll(): Observable<IUser[]> {
     try {
-      const users = await this.userRepository.find();
-      return users;
+      return from(this.userRepository.find()).pipe(
+        map((users: IUser[]) => {
+          users.forEach((user) => delete user.password);
+          return users;
+        }),
+      );
     } catch (error) {
-      console.error("Woops. Couldn't find the users");
+      throw new Error(error);
     }
   }
 
-  async findOne(id: string): Promise<User> {
+  findOne(id: string): Observable<IUser> {
     try {
-      const user = this.userRepository.findOne(id);
-      return user;
+      return from(this.userRepository.findOne(id)).pipe(
+        map((user: User) => {
+          const { password, ...result } = user;
+          return result;
+        }),
+      );
     } catch (error) {
-      console.error("Woops. Couldn't find that user");
+      throw new Error(error);
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UpdateResult> {
     try {
       const updatedUser = this.userRepository.update(id, updateUserDto);
-      return updatedUser
+      return updatedUser;
     } catch (error) {
       console.error("Woops, couldn't update that user");
     }
