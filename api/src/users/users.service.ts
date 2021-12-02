@@ -64,10 +64,7 @@ export class UsersService {
     }
   }
 
-  async update(
-    id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UpdateResult> {
+  update(id: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
     try {
       const updatedUser = this.userRepository.update(id, updateUserDto);
       return updatedUser;
@@ -83,5 +80,39 @@ export class UsersService {
     } catch (error) {
       console.error("Woops. Couldn't delete that user");
     }
+  }
+  login({ email, password }): Observable<string> {
+    return this.validateUser(email, password).pipe(
+      switchMap((user: User) => {
+        if (user) {
+          return this.authService
+            .generateJWT(user)
+            .pipe(map((jwt: string) => jwt));
+        } else {
+          return 'Incorrect email or password';
+        }
+      }),
+    );
+  }
+
+  validateUser(email: string, password: string): Observable<IUser> {
+    return this.findByEmail(email).pipe(
+      switchMap((user: User) =>
+        this.authService.comparePasswords(password, user.password).pipe(
+          map((match: boolean) => {
+            if (match) {
+              const { password, ...result } = user; // Known as rest parameter
+              return result;
+            } else {
+              throw Error();
+            }
+          }),
+        ),
+      ),
+    );
+  }
+
+  findByEmail(email: string): Observable<User> {
+    return from(this.userRepository.findOne({ email }));
   }
 }
