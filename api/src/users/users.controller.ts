@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,6 +14,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { IUser } from './entities/user.interface';
 import { catchError, map, Observable, of } from 'rxjs';
 import { User } from './entities/user.entity';
+import { hasRoles } from 'src/auth/decorator/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('users')
 export class UsersController {
@@ -35,6 +39,8 @@ export class UsersController {
     );
   }
 
+  @hasRoles('Admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();
