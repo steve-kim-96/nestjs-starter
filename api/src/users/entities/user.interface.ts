@@ -1,4 +1,5 @@
 import { Post } from "src/posts/entities/post.entity";
+import { UserRole } from "./user.role";
 
 export interface IUser {
   id?: string;
@@ -7,4 +8,5 @@ export interface IUser {
   email?: string;
   password?: string;
   posts?: Post[];
+  role?: UserRole;
 }

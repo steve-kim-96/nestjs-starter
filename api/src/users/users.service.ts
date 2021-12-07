@@ -25,6 +25,7 @@ export class UsersService {
           newUser.lastName = user.lastName;
           newUser.username = user.username;
           newUser.password = passwordHash;
+          newUser.role = user.role;
           return from(this.userRepository.save(newUser)).pipe(
             map((user: User) => {
               const { password, ...result } = user;

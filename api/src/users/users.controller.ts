@@ -17,6 +17,7 @@ import { User } from './entities/user.entity';
 import { hasRoles } from 'src/auth/decorator/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRole } from './entities/user.role';
 
 @Controller('users')
 export class UsersController {
@@ -39,7 +40,7 @@ export class UsersController {
     );
   }
 
-  @hasRoles('Admin')
+  @hasRoles(UserRole.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   findAll() {
